@@ -1,15 +1,19 @@
-from email.policy import default
+from datetime import timedelta, datetime, timezone
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND, HTTP_200_OK
-
+from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND, HTTP_200_OK, HTTP_401_UNAUTHORIZED
 from database import SessionLocal
 from passlib.context import CryptContext
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from models import User
-router = APIRouter()
+from jose import jwt, JWTError
+
+router = APIRouter(
+    prefix="/auth",
+    tags=["Auth"],
+)
 
 def get_db():
     db = SessionLocal()
@@ -22,27 +26,15 @@ def get_db():
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 form_login = Annotated[OAuth2PasswordRequestForm, Depends()]
 db_depend = Annotated[Session, Depends(get_db)]
+secret_key = '7f8233dbcdd6b8f089dec181ba284e609c14cc890ef32f3e71dc254730931408'
+algor = 'HS256'
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
 
-class CreateUserRequest(BaseModel):
-    username: str = Field(min_length=3, max_length=50)
-    password: str = Field(min_length=8, max_length=50)
-    first_name: str = Field(min_length=3, max_length=50)
-    last_name: str = Field(min_length=3, max_length=50)
-    email: str = Field(min_length=3, max_length=50)
-    rank: int = Field(default=1)
 
-@router.post("/auth/create_user", status_code=HTTP_201_CREATED)
-async def create_user(user: CreateUserRequest, db: db_depend):
-    create_user = User(
-        username=user.username,
-        hashed_password=bcrypt_context.hash(user.password),
-        first_name=user.first_name,
-        last_name=user.last_name,
-        email=user.email,
-        ranking = user.rank
-    )
-    db.add(create_user)
-    db.commit()
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
 
 
 def authen_user(db, username: str, password: str):
@@ -51,18 +43,35 @@ def authen_user(db, username: str, password: str):
         return False
     if not bcrypt_context.verify(password, user.hashed_password):
         return False
-    return True
+    return user
 
-@router.post("/auth/login", status_code=HTTP_200_OK)
-async def login(form_data: form_login, db: db_depend):
-    if not authen_user(db, form_data.username, form_data.password):
-        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="Incorrect username or password")
-    return {"message": "You are now logged in!"}
+def create_access_token(username: str, user_id: int, expires_delta: timedelta):
+    encode = {'sub' : username, 'id' : user_id}
+    expire = datetime.now(timezone.utc) + expires_delta
+    encode.update({'exp' : expire})
+    return jwt.encode(encode, secret_key, algorithm=algor)
 
-@router.get("/get_all_users")
-async def get_all_users(db: db_depend):
-    users = db.query(User).all()
-    return users
+async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
+    try:
+        payload = jwt.decode(token, secret_key, algorithms=[algor])
+        username: str = payload.get('sub')
+        user_id: int = payload.get('id')
+        if username is None or user_id is None:
+            raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail= 'Cannot validate user!')
+        return {'username': username, 'user_id': user_id}
+    except JWTError:
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail= 'Cannot validate user!')
+
+
+
+
+@router.post("/token", status_code=HTTP_200_OK, response_model=Token)
+async def login_for_access_token(form_data: form_login, db: db_depend):
+    user = authen_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
+    token = create_access_token(user.username, user.id, timedelta(minutes=60))
+    return {'access_token': token, 'token_type': 'Bearer'}
 
 
 
