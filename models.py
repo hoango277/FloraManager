@@ -3,9 +3,9 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from database import Base
 
 class Rank(Base):
-    __tablename__ = 'rank'
+    __tablename__ = 'user_rank'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    description = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=False)
 
 class User(Base):
     __tablename__ = 'user'
@@ -15,7 +15,7 @@ class User(Base):
     first_name = Column(String(255), nullable=False)
     last_name = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False)
-    rank = Column(Integer, ForeignKey('rank.id'), nullable=False)
+    ranking = Column(Integer, ForeignKey('user_rank.id'), nullable=False)
 
 class Flower(Base):
     __tablename__ = 'flower'
