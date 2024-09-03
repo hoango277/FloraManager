@@ -15,6 +15,10 @@ router = APIRouter(
     tags = ["Users"],
 )
 
+def normalize(name : str):
+    name = name.strip().split()
+    return " ".join(i.capitalize() for i in name)
+
 
 
 def get_db():
@@ -39,6 +43,7 @@ class CreateUserRequest(BaseModel):
     last_name: str = Field(min_length=3, max_length=50)
     email: str = Field(min_length=3, max_length=50)
     rank: int = Field(default=1)
+    role: str = Field(default="user")
 
 
 
@@ -53,10 +58,11 @@ async def create_user(user: CreateUserRequest, db: db_depend):
     create_user = User(
         username=user.username,
         hashed_password=bcrypt_context.hash(user.password),
-        first_name=user.first_name,
-        last_name=user.last_name,
+        first_name=normalize(user.first_name),
+        last_name=normalize(user.last_name),
         email=user.email,
-        ranking = user.rank
+        ranking = user.rank,
+        role = user.role
     )
     db.add(create_user)
     db.commit()

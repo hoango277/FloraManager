@@ -16,6 +16,7 @@ class User(Base):
     last_name = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False)
     ranking = Column(Integer, ForeignKey('user_rank.id'), nullable=False)
+    role = Column(String(255))
 
 class Flower(Base):
     __tablename__ = 'flower'
