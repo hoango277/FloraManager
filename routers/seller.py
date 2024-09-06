@@ -30,8 +30,29 @@ def get_db():
 db_depend = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[dict, Depends(get_current_user)]
 
+def return_rank(rank_id, db:db_depend):
+    rank_return = db.query(Rank).filter(Rank.id == rank_id).first()
+    return rank_return.name
 
-
+@router.get("/get_all_user", status_code=status.HTTP_200_OK)
+async def get_all_user(db: db_depend, user: user_dependency):
+    if user.get('user_role') != 'admin':
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Only seller can get all user")
+    user_return = db.query(User).all()
+    user_to_return = [
+        {
+            'id': cr_user.id,
+            'username': cr_user.username,
+            'first_name': cr_user.first_name,
+            'last_name': cr_user.last_name,
+            'email': cr_user.email,
+            'ranking': return_rank(cr_user.ranking, db),
+            'role': cr_user.role,
+            'spend': cr_user.spend
+        }
+        for cr_user in user_return
+    ]
+    return user_to_return
 
 @router.post("/get_all_bill", status_code=status.HTTP_201_CREATED)
 async def get_all_bill(user: user_dependency, db : db_depend):

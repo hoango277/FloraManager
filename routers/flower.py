@@ -70,4 +70,16 @@ async def update_flower(name: str, price: int, db:db_depend, user:user_dependenc
     db.commit()
 
 
+@router.get("/get_all_flower")
+async def get_all_flower(user:user_dependency, db:db_depend):
+    flower_list = db.query(Flower).all()
+    flower_list_to_return = [
+        {
+            "id" : flower.id,
+            "name": flower.name,
+            "price": flower.price
+        }
+        for flower in flower_list
+    ]
+    return flower_list_to_return
 

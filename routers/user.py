@@ -9,8 +9,9 @@ from starlette import status
 from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND, HTTP_200_OK, HTTP_401_UNAUTHORIZED
 from database import SessionLocal
 from passlib.context import CryptContext
-from models import User, Bill, Flower
+from models import User, Bill, Flower, Rank
 from .auth import get_current_user
+from fastapi import HTTPException, status
 from .rank import set_user_rank
 
 
@@ -72,6 +73,30 @@ async def create_user(user: CreateUserRequest, db: db_depend):
     db.add(create_user)
     db.commit()
 
+
+
+
+
+@router.get("/get_user_info")
+async def get_user_info(db: db_depend, user: user_dependency):
+    cr_user = db.query(User).filter(User.id == user.get('user_id')).first()
+    if cr_user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found!")
+    set_user_rank(cr_user.username, db)
+    rank = db.query(Rank).filter(Rank.id == cr_user.ranking).first()
+    cr_user_to_return = {
+        'id': cr_user.id,
+        'username': cr_user.username,
+        'first_name': cr_user.first_name,
+        'last_name': cr_user.last_name,
+        'email': cr_user.email,
+        'ranking': rank.name,
+        'role': cr_user.role,
+        'spend': cr_user.spend
+    }
+    return cr_user_to_return
+
+
 @router.put("/update_password", status_code=HTTP_200_OK)
 async def update_password(current_user: user_dependency, db: db_depend, password: PasswordRequest):
     user = db.query(User).filter(User.id == current_user.get('user_id')).first()
@@ -86,7 +111,7 @@ async def update_password(current_user: user_dependency, db: db_depend, password
 
 
 @router.post("/create_new_bill", status_code=status.HTTP_201_CREATED, description="Bill added successfully")
-async def create_new_bill(user: user_dependency, db : db_depend, quantity:int, flower_name:str):
+async def create_new_bill(flower_name:str,user: user_dependency, db : db_depend, quantity:int = Query(gt=0)):
     if user.get('user_role') != 'user':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Only for user")
     flower_to_add = db.query(Flower).filter(Flower.name == normalize(flower_name)).first()

@@ -72,7 +72,7 @@ def get_user_rank(db : db_depend, user:user_dependency):
         "total spend": current_user.spend,
         "User rank is" : rank.name}
 
-@router.put("/update_rank", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/update_new_rank", status_code=status.HTTP_204_NO_CONTENT)
 def update_rank(db : db_depend, user:user_dependency, request:RankingReqest):
     if user.get('user_role') != 'admin':
         raise HTTPException(status_code=401, detail="Only admin can update rank")
