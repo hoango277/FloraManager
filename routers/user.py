@@ -1,212 +1,58 @@
-from calendar import month
-from datetime import timedelta, datetime, timezone, date
+import traceback
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException,Query
-from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
-from sqlalchemy.sql.functions import current_date
-from starlette import status
-from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND, HTTP_200_OK, HTTP_401_UNAUTHORIZED
-from database import SessionLocal
-from passlib.context import CryptContext
-from models import User, Bill, Flower, Rank
-from .auth import get_current_user
-from fastapi import HTTPException, status
-from .rank import set_user_rank
 
+from fastapi import APIRouter, Depends, Query
+
+from configs.authentication import get_current_user
+from configs.database import get_db
+from exception import raise_error
+from schemas.user import PasswordRequest
+from services.user_services import get_user_service
 
 router = APIRouter(
-    prefix = "/users",
-    tags = ["Users"],
+    prefix="/api/users",
+    tags=["users"],
 )
 
-def normalize(name : str):
-    name = name.strip().split()
-    return " ".join(i.capitalize() for i in name)
+@router.post("/get_user_info")
+def get_user_info(db = Depends(get_db), user = Depends(get_current_user), user_service = Depends(get_user_service)):
+    user = user_service.get_user_info(db, user)
+    if not user:
+        return raise_error(100001)
+    return user
+
+@router.put("/update_user_password")
+def update_user_password(
+    password : PasswordRequest,
+    db = Depends(get_db),
+    user = Depends(get_current_user),
+    user_service = Depends(get_user_service),
+):
+        try:
+            user_service.update_password(db, user, password)
+            return {
+                'message': 'Password updated successfully'
+            }
+        except Exception :
+            return raise_error(100005)
+
+@router.post("/create_new_bill")
+def create_new_bill(
+        flower_id:int,
+        quantity : int ,
+        db = Depends(get_db),
+        user = Depends(get_current_user),
+        user_service = Depends(get_user_service)
+):
+    if quantity <= 0:
+        return raise_error(100014)
+    return user_service.create_new_bill(db ,user, flower_id, quantity)
 
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-
-db_depend = Annotated[Session, Depends(get_db)]
-bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-user_dependency = Annotated[dict, Depends(get_current_user)]
-
-
-
-class CreateUserRequest(BaseModel):
-    username: str = Field(min_length=3, max_length=50)
-    password: str = Field(min_length=8, max_length=50)
-    first_name: str = Field(min_length=3, max_length=50)
-    last_name: str = Field(min_length=3, max_length=50)
-    email: str = Field(min_length=3, max_length=50)
-    rank: int = Field(default=1)
-    role: str = Field(default="user")
-
-
-
-class PasswordRequest(BaseModel):
-    old_password: str = Field(min_length=8, max_length=50)
-    new_password: str = Field(min_length=8, max_length=50)
-
-
-
-@router.post("/create_user", status_code=HTTP_201_CREATED)
-async def create_user(user: CreateUserRequest, db: db_depend):
-    create_user = User(
-        username=user.username,
-        hashed_password=bcrypt_context.hash(user.password),
-        first_name=normalize(user.first_name),
-        last_name=normalize(user.last_name),
-        email=user.email,
-        ranking = user.rank,
-        role = user.role,
-        spend = 0
-    )
-    db.add(create_user)
-    db.commit()
-
-
-
-
-
-@router.get("/get_user_info")
-async def get_user_info(db: db_depend, user: user_dependency):
-    cr_user = db.query(User).filter(User.id == user.get('user_id')).first()
-    if cr_user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found!")
-    set_user_rank(cr_user.username, db)
-    rank = db.query(Rank).filter(Rank.id == cr_user.ranking).first()
-    cr_user_to_return = {
-        'id': cr_user.id,
-        'username': cr_user.username,
-        'first_name': cr_user.first_name,
-        'last_name': cr_user.last_name,
-        'email': cr_user.email,
-        'ranking': rank.name,
-        'role': cr_user.role,
-        'spend': cr_user.spend
-    }
-    return cr_user_to_return
-
-
-@router.put("/update_password", status_code=HTTP_200_OK)
-async def update_password(current_user: user_dependency, db: db_depend, password: PasswordRequest):
-    user = db.query(User).filter(User.id == current_user.get('user_id')).first()
-    if user is None:
-        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="User not found!")
-    if not bcrypt_context.verify(password.old_password, user.hashed_password):
-        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED,detail="Incorrect password.")
-
-    user.hashed_password = bcrypt_context.hash(password.new_password)
-    db.commit()
-    raise HTTPException(status_code=HTTP_200_OK, detail="Password updated successfully!")
-
-
-@router.post("/create_new_bill", status_code=status.HTTP_201_CREATED, description="Bill added successfully")
-async def create_new_bill(flower_name:str,user: user_dependency, db : db_depend, quantity:int = Query(gt=0)):
-    if user.get('user_role') != 'user':
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Only for user")
-    flower_to_add = db.query(Flower).filter(Flower.name == normalize(flower_name)).first()
-    current_day = datetime.now(timezone.utc).date()
-
-    if flower_to_add is None:
-        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="Flower not found!")
-    new_bill = Bill(
-        user_id= user.get('user_id'),
-        flower_id = flower_to_add.id,
-        quantity= quantity,
-        day=current_day.day,
-        month=current_day.month,
-        year = current_day.year,
-        total = quantity * flower_to_add.price
-    )
-    current_user = db.query(User).filter(User.id == user.get('user_id')).first()
-    current_user.spend += new_bill.total
-    db.add(new_bill)
-    db.add(current_user)
-    db.commit()
-
-@router.get("/get_monthly_bill", status_code=HTTP_200_OK)
-async def get_monthly_bill(user: user_dependency, db : db_depend, month:int, year:int):
-    if user.get('user_role') != 'user':
-        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Only for user")
-    try:
-        date(year, month, 1)
-    except ValueError:
-        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="Invalid date")
-
-    bill = db.query(Bill).filter(Bill.user_id == user.get('user_id'),
-                                   Bill.month ==  month,
-                                    Bill.year == year).all()
-    bill_list = [
-        {
-            "total" : bil.total,
-            "quantity": bil.quantity,
-            "flower name": db.query(Flower).filter(Flower.id == bil.flower_id).first().name,
-            "date": date(bil.year, bil.month, bil.day)
-        }
-        for bil in bill
-    ]
-    return bill_list
-
-@router.get("/get_quarterly_bill", status_code=HTTP_200_OK)
-async def get_quarterly_bill(year:int, user: user_dependency, db : db_depend, quarter:int = Query(gt = 0, le = 4)):
-    if user.get('user_role') != 'user':
-        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Only for user")
-    start_month, end_month = quarter * 3 - 2, quarter * 3
-    bill = db.query(Bill).filter(
-        Bill.user_id == user.get('user_id'),
-        Bill.month >= start_month,
-        Bill.month <= end_month,
-        Bill.year == year
-    ).all()
-
-    bill_list = [
-        {
-            "total": bil.total,
-            "quantity": bil.quantity,
-            "flower name": db.query(Flower).filter(Flower.id == bil.flower_id).first().name,
-            "date": date(bil.year, bil.month, bil.day)
-        }
-        for bil in bill
-    ]
-    return bill_list
-
-@router.get("/get_yearly_bill", status_code=HTTP_200_OK)
-async def get_yearly_bill(user: user_dependency, db : db_depend, year:int):
-    if user.get('user_role') != 'user':
-        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Only for user")
-    try:
-        date(year, 1, 1)
-    except ValueError:
-        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="Invalid date")
-
-    bill = db.query(Bill).filter(Bill.user_id == user.get('user_id'),
-                                 Bill.year == year).all()
-
-    bill_list = [
-        {
-            "total": bil.total,
-            "quantity": bil.quantity,
-            "flower name": db.query(Flower).filter(Flower.id == bil.flower_id).first().name,
-            "date": date(bil.year, bil.month, bil.day)
-        }
-        for bil in bill
-    ]
-    return bill_list
-
-
-
-
-
+@router.get("/get_monthly_bills")
+def get_monthly_bills(year, month, db = Depends(get_db), user = Depends(get_current_user), user_service = Depends(get_user_service)
+                      ):
+    return user_service.get_monthly_bill(user, db, month, year)
 
 
 

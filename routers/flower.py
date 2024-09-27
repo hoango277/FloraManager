@@ -1,85 +1,45 @@
-from typing import Annotated
+from fastapi import APIRouter,Depends
 
-from pydantic import BaseModel, Field
-
-from models import Flower
-from .auth import get_current_user
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-
-from database import SessionLocal
-from .user import normalize
+from configs.authentication import get_current_user
+from configs.database import get_db
+from schemas.flower import FlowerRequest
+from services.flower_services import get_flower_service
 
 router = APIRouter(
-    prefix="/flower",
+    prefix="/api/flower",
     tags=["flower"],
 )
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-class FlowerRequest(BaseModel):
-    name: str
-    price : int = Field(gt = 0)
-
-db_depend = Annotated[Session, Depends(get_db)]
-user_dependency = Annotated[dict, Depends(get_current_user)]
-
-@router.get("/get_flower_by_{name}")
-async def get_flower_by_name(name: str, db:db_depend):
-    flower_return = db.query(Flower).filter(Flower.name == normalize(name)).first()
-    if not flower_return:
-        raise HTTPException(status_code=404, detail="Flower not found")
-    return {"name": flower_return.name,
-             "price": flower_return.price }
+@router.get("/get_all_flower")
+def get_all_flower(db = Depends(get_db), flower_service = Depends(get_flower_service)):
+    return flower_service.get_all_flower(db)
 
 @router.post("/create_flower")
-async def create_flower(flower: FlowerRequest, db:db_depend, user:user_dependency):
-    if user.get('user_role') != 'admin':
-        raise HTTPException(status_code=403, detail="You are not able to add flower")
-    flower_add = Flower(
-        name=normalize(flower.name),
-        price=flower.price,
-    )
-    db.add(flower_add)
-    db.commit()
+def create_flower(
+        flower : FlowerRequest,
+        user = Depends(get_current_user),
+        db = Depends(get_db),
+        flower_service = Depends(get_flower_service)
 
-@router.delete("/delete_flower_by_{name}", status_code=204,description="Flower deleted")
-async def delete_flower(name: str, db:db_depend, user:user_dependency):
-    if user.get('user_role') != 'admin':
-        raise HTTPException(status_code=403, detail="You are not able to delete flower")
-    flower_delete = db.query(Flower).filter(Flower.name == normalize(name)).first()
-    if not flower_delete:
-        raise HTTPException(status_code=404, detail="Flower not found")
-    db.delete(flower_delete)
-    db.commit()
+):
+    return flower_service.create_flower(db, user, flower)
 
-@router.put("/update_flower_by_{name}", status_code=204,description="Flower updated")
-async def update_flower(name: str, price: int, db:db_depend, user:user_dependency):
-    if user.get('user_role') != 'admin':
-        raise HTTPException(status_code=403, detail="You are not able to update flower")
-    flower_update = db.query(Flower).filter(Flower.name == normalize(name)).first()
-    if not flower_update:
-        raise HTTPException(status_code=404, detail="Flower not found")
-    flower_update.price = price
-    db.commit()
+@router.delete("/delete_flower_by_{id}")
+def delete_flower(
+    id : int,
+    user = Depends(get_current_user),
+        db = Depends(get_db),
+        flower_service = Depends(get_flower_service)
+):
+    return flower_service.delete_flower_by_id(db, user, id)
 
+@router.put("/update_flower_by_{id}")
+def update_flower(
+    id : int,
+flower : FlowerRequest,
+        user=Depends(get_current_user),
+        db=Depends(get_db),
+        flower_service=Depends(get_flower_service)
 
-@router.get("/get_all_flower")
-async def get_all_flower(user:user_dependency, db:db_depend):
-    flower_list = db.query(Flower).all()
-    flower_list_to_return = [
-        {
-            "id" : flower.id,
-            "name": flower.name,
-            "price": flower.price
-        }
-        for flower in flower_list
-    ]
-    return flower_list_to_return
-
+):
+    return flower_service.update_flower_by_id(db, user, flower, id)

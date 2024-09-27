@@ -4,12 +4,43 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5ae6ba31-f02a-47fa-91ce-311aaddfe234" name="Changes" comment="Fully add feature:&#10;CRUD for Bill, Flower&#10;Setup ranking for user&#10;Get daily, monthly, quarterly and monthly revenue&#10;get monthly and monthly bill for user">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routers/flower.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/flower.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routers/rank.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/rank.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routers/seller.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/seller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routers/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/user.py" afterDir="false" />
+    <list default="true" id="61e5afdb-2dbe-4ba2-944d-70c9c3d0bfeb" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/FlowerShop.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/configs/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/configs/authentication.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/configs/database.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/configs/normalize_name.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/exception.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/bill.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/flower.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/rank.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/user.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/routers/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/routers/authentication.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/routers/flower.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/routers/rank.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/routers/seller.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/routers/user.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/schemas/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/schemas/authentication.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/schemas/base_reponse.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/schemas/flower.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/schemas/rank.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/schemas/user.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/authentication_sevices.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/flower_services.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/rank_services.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/seller_services.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/user_services.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,22 +59,13 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;hoango277&quot;
-  }
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/hoango277/FloraManager.git&quot;,
-    &quot;accountId&quot;: &quot;db3d8425-e8bf-4262-862e-6ef28fe98001&quot;
-  }
-}</component>
+  <component name="ProblemsViewState">
+    <option name="autoscrollToSource" value="true" />
+  </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 0
+  &quot;associatedIndex&quot;: 2
 }</component>
-  <component name="ProjectId" id="2lVNSpJIga3ZVUnzXzEmfIWJEYg" />
+  <component name="ProjectId" id="2lrm9pA09xkbabej0wsf6kG4G0C" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
@@ -53,7 +75,8 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;Python.testFile.executor&quot;: &quot;Run&quot;,
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;FastAPI.FlowerShop.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -61,13 +84,14 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RunManager">
-    <configuration name="FloraManager" type="Python.FastAPI">
+    <configuration name="FlowerShop" type="Python.FastAPI">
       <option name="file" value="$PROJECT_DIR$/main.py" />
-      <module name="FloraManager" />
+      <module name="FlowerShop" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -92,68 +116,30 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="5ae6ba31-f02a-47fa-91ce-311aaddfe234" name="Changes" comment="" />
-      <created>1725261286187</created>
+      <changelist id="61e5afdb-2dbe-4ba2-944d-70c9c3d0bfeb" name="Changes" comment="" />
+      <created>1725946421135</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1725261286187</updated>
-      <workItem from="1725261287232" duration="1396000" />
-      <workItem from="1725262699434" duration="6386000" />
-      <workItem from="1725280199249" duration="4863000" />
-      <workItem from="1725285112587" duration="100000" />
-      <workItem from="1725285230841" duration="331000" />
-      <workItem from="1725285568970" duration="5186000" />
-      <workItem from="1725373798178" duration="14694000" />
-      <workItem from="1725415392257" duration="243000" />
-      <workItem from="1725632746522" duration="3202000" />
+      <updated>1725946421135</updated>
+      <workItem from="1725946437197" duration="60000" />
+      <workItem from="1725981787649" duration="99000" />
+      <workItem from="1725981893148" duration="115000" />
+      <workItem from="1726021626497" duration="10296000" />
+      <workItem from="1726151953053" duration="1100000" />
+      <workItem from="1726195021269" duration="4656000" />
+      <workItem from="1726214585697" duration="1701000" />
+      <workItem from="1726216320097" duration="1907000" />
+      <workItem from="1726218247573" duration="7007000" />
+      <workItem from="1726237508194" duration="4280000" />
+      <workItem from="1726741680501" duration="366000" />
+      <workItem from="1726800927044" duration="3000" />
     </task>
-    <task id="LOCAL-00001" summary="database setup">
-      <option name="closed" value="true" />
-      <created>1725264754721</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1725264754721</updated>
-    </task>
-    <task id="LOCAL-00002" summary="add rank and setup authen">
-      <option name="closed" value="true" />
-      <created>1725268943986</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1725268943986</updated>
-    </task>
-    <task id="LOCAL-00003" summary="add CRUD for Flower and admin authorization">
-      <option name="closed" value="true" />
-      <created>1725353813428</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1725353813428</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Fully add feature:&#10;CRUD for Bill, Flower&#10;Setup ranking for user&#10;Get daily, monthly, quarterly and monthly revenue&#10;get monthly and monthly bill for user">
-      <option name="closed" value="true" />
-      <created>1725388316069</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1725388316069</updated>
-    </task>
-    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="database setup" />
-    <MESSAGE value="add rank and setup authen" />
-    <MESSAGE value="Setup authenticate for user&#10;Added feature change user password" />
-    <MESSAGE value="add CRUD for Flower and admin authorization" />
-    <MESSAGE value="Fully add feature:&#10;CRUD for Bill, Flower&#10;Setup ranking for user&#10;Get daily, monthly, quarterly and monthly revenue&#10;get monthly and monthly bill for user" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fully add feature:&#10;CRUD for Bill, Flower&#10;Setup ranking for user&#10;Get daily, monthly, quarterly and monthly revenue&#10;get monthly and monthly bill for user" />
-  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/FloraManager$testFile.coverage" NAME="testFile Coverage Results" MODIFIED="1725375313098" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/FlowerShop$FlowerShop.coverage" NAME="FlowerShop Coverage Results" MODIFIED="1726741688635" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>
